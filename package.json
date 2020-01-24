@@ -1,12 +1,12 @@
 {
   "name": "crow",
   "version": "1.0.0",
-  "description": "",
+  "description": "Node.js module for connecting to and communicating with a crow eurorack module via JavaScript.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Isaac Pearl",
   "license": "ISC",
   "dependencies": {
     "readline": "^1.3.0",

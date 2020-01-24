@@ -1,5 +1,5 @@
 # crow.js
-Node.js module for handling a connection to a crow device in Javascript.
+Node.js module for connecting to and communicating with a crow eurorack module via JavaScript.
 
 ## Installation
 TODO: publish to npm using this guide: https://docs.npmjs.com/creating-node-js-modules
