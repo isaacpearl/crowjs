@@ -56,28 +56,28 @@ function checkError(err) {
 }
 
 const send = (luaString, uploadType="") => {
-    switch(uploadType) {
-        case "run":
-	        crowPort.write("^^s", checkError);
-	        await sleep(100);
-	        crowPort.write(luaString+"\n", checkError);
-	        crowPort.write("^^e", checkError);
-            break;
-        case "save":
-	        crowPort.write("^^s", checkError);
-	        await sleep(100);
-	        crowPort.write(luaString+"\n", checkError);
-	        crowPort.write("^^w", checkError);
-            break;
-        default:
-	        crowPort.write(luaString+"\n", checkError);
-            break;
-    }
+	switch(uploadType) {
+		case "run":
+			crowPort.write("^^s", checkError);
+			await sleep(100);
+			crowPort.write(luaString+"\n", checkError);
+			crowPort.write("^^e", checkError);
+			break;
+		case "save":
+			crowPort.write("^^s", checkError);
+			await sleep(100);
+			crowPort.write(luaString+"\n", checkError);
+			crowPort.write("^^w", checkError);
+			break;
+		default:
+			crowPort.write(luaString+"\n", checkError);
+			break;
+	}
 }
 
 module.exports = {
 	open,
-    close,
-    send,
-    setResponder
+	close,
+	send,
+	setResponder
 }
