@@ -16,9 +16,11 @@ upload_type{ execute
            , reset_and_execute
            , reset_and_save_and_execute
            }
+
 error_state{ badstring
            , badtype
            , badconnection
+		   }
 send :: lua_string -> upload_type -> error_state
 update_response_callback :: response_callback -> ()
 ```
