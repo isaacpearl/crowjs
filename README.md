@@ -1,6 +1,9 @@
 # crow.js
 Node.js module for handling a connection to a crow device in Javascript.
 
+## Installation
+TODO: publish to npm using this guide: https://docs.npmjs.com/creating-node-js-modules
+
 ## API
 TODO: use apidoc module to generate api documentation
 
@@ -20,8 +23,7 @@ send :: lua_string -> upload_type -> error_state
 update_response_callback :: response_callback -> ()
 ```
 
-### future
+## Future
 * reconnection functionality with listener in `open()`
 * write usage documentation (with instructive example of responder callback that listens for `^^` messages)
-* crow firmware updater program:
-https://github.com/devanlai/webdfu
+* crow firmware update program (https://github.com/devanlai/webdfu)
