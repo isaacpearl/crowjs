@@ -3,10 +3,14 @@ const SerialReadline = require('@serialport/parser-readline');
 
 var crowPort, lineStream;
 
-//TODO: reconnection
+//TODO: reconnection and better error reporting
 const open = async (responder) => {
-	crowPort = await connectCrow();
+	//crowPort = await connectCrow();
 	try {
+		var port = await findCrow();
+		crowPort = new SerialPort(port, {
+			baudRate: 115200,
+		});
 		lineStream = crowPort.pipe(new SerialReadline({ delimiter: '\r' }));
 		setResponder(responder);
 	} catch(err) {
@@ -14,19 +18,6 @@ const open = async (responder) => {
 		lineStream = 0;
 		return;
 	}
-}
-
-async function connectCrow() {
-	var crow;
-	try {
-		const port = await findCrow();
-		crow = new SerialPort(port, {
-			baudRate: 115200,
-		});
-	} catch (err) {
-		console.log(`error on connection: ${err.message}`);
-	}
-	return crow;
 }
 
 async function findCrow() {
@@ -51,11 +42,12 @@ const close = () => {
 
 function checkError(err) {
 	if(err) {
-		return console.log('Error on write: ', err.message);
+		return console.log('Error: ', err.message);
 	}
 }
 
-const send = (luaString, uploadType="") => {
+//TODO: \r vs \n
+const send = async (luaString, uploadType="") => {
 	switch(uploadType) {
 		case "run":
 			crowPort.write("^^s", checkError);
@@ -74,6 +66,14 @@ const send = (luaString, uploadType="") => {
 			break;
 	}
 }
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+port.on('open', () => {
+	open();	
+});
 
 module.exports = {
 	open,

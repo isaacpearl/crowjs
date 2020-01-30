@@ -4,7 +4,7 @@
   "description": "Node.js module for connecting to and communicating with a crow eurorack module via JavaScript.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "author": "Isaac Pearl",
   "license": "ISC",
