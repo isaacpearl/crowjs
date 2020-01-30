@@ -71,10 +71,6 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-port.on('open', () => {
-	open();	
-});
-
 module.exports = {
 	open,
 	close,
