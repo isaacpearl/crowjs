@@ -1,14 +1,14 @@
 const SerialPort = require('serialport');
 const SerialReadline = require('@serialport/parser-readline');
 
-var crowPort, lineStream;
+let crowPort, lineStream;
 
 //TODO: reconnection and better error reporting, also default console.log responder
 
 const open = async (responder=console.log) => {
 	//crowPort = await connectCrow();
 	try {
-		var port = await findCrow();
+		let port = await findCrow();
 		crowPort = new SerialPort(port, {
 			baudRate: 115200,
 		});
@@ -21,8 +21,8 @@ const open = async (responder=console.log) => {
 	}
 } 
 async function findCrow() {
-	var ports = await SerialPort.list();
-	var portpath = "";
+	let ports = await SerialPort.list();
+	let portpath = "";
 	ports.forEach((item) => {
 		if (item.vendorId == 0483 && item.productId == 5740) {
 			console.log(`found crow by ~~ ${item.manufacturer} ~~ !`);
