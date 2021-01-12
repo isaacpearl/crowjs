@@ -9,8 +9,6 @@
   "author": "Isaac Pearl",
   "license": "ISC",
   "dependencies": {
-    "readline": "^1.3.0",
-    "serial": "0.0.9",
     "serialport": "^9.0.4"
   }
 }
