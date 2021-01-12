@@ -20,6 +20,7 @@ const open = async (responder=console.log) => {
 		return;
 	}
 } 
+
 async function findCrow() {
 	let ports = await SerialPort.list();
 	let portpath = "";
