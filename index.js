@@ -19,9 +19,9 @@ const open = async (responder=console.log) => {
 		lineStream = 0;
 		return;
 	}
-} 
+}; 
 
-async function findCrow() {
+const findCrow = async () => {
 	let ports = await SerialPort.list();
 	let portpath = "";
 	ports.forEach((item) => {
@@ -30,23 +30,23 @@ async function findCrow() {
 			portPath = item.path;
 		} })
 	return portPath;
-}
+};
 
 const setResponder = (responder) => {
 	lineStream.removeAllListeners('data');
 	lineStream.on('data', responder);
-}
+};
 
 // crowPort will disconnect automatically on program close, use this for strange edge cases
 const close = () => {
 	crowPort.close(checkError);
-}
+};
 
-function checkError(err) {
-	if(err) {
+const checkError = (err) => {
+	if (err) {
 		return console.log('Error: ', err.message);
 	}
-}
+};
 
 const send = async (luaString, uploadType="") => {
 	switch(uploadType) {
@@ -68,11 +68,9 @@ const send = async (luaString, uploadType="") => {
 			crowPort.write(luaString+"\n", checkError);
 			break;
 	}
-}
+};
 
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = {
 	open,
