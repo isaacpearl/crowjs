@@ -3,7 +3,7 @@ const SerialReadline = require('@serialport/parser-readline');
 
 let crowPort, lineStream;
 
-//TODO: reconnection and better error reporting, also default console.log responder
+//TODO: reconnection and better error reporting
 
 const open = async (responder=console.log) => {
 	//crowPort = await connectCrow();
