@@ -1,13 +1,18 @@
 const crow = require('./index.js');
 
 async function test() {
-	await crow.open((data) => {
+
+    const crowConnection = await crow.open((data) => {
 		console.log(data);
-	});
+    });
 
-	await crow.send("x = true", "run");
+    console.log(crowConnection)
 
-	await crow.send("print(x)");
+    if (crowConnection) {
+        await crow.send("x = true", "run");
+        await crow.send("print(x)");
+        await crow.luaCall("print", ["Hello world!", true, 0, [1, "array element"], {cat: "meow", dog: "woof", age: 100}]);
+    }
 
 }
 
