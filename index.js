@@ -5,6 +5,13 @@ let crowPort, lineStream;
 
 //TODO: reconnection and better error reporting
 
+/*
+ * Opens connection to a Crow module and sets a responder function
+ *
+ * @param   {Function} responder A function which is run on all input recieved from the serial port
+ *
+ * @returns {Object} The new lineStream object for Crow
+ */
 const open = async (responder=console.log) => {
 	//crowPort = await connectCrow();
 	try {
@@ -21,6 +28,11 @@ const open = async (responder=console.log) => {
     return lineStream;
 }; 
 
+/*
+ * Searches all available serial ports for a connected Crow module
+ *
+ * @returns {String} The path to the serial port Crow is connected on
+ */
 const findCrow = async () => {
 	let ports = await SerialPort.list();
 	let portPath;
@@ -30,14 +42,17 @@ const findCrow = async () => {
 			portPath = item.path;
         } 
     });
-    if (portPath) {
-	    return portPath;
-    } else {
+    if (!portPath) {
         throw Error("No crow module detected");
-        return;
     }
+    return portPath;
 };
 
+/*
+ * Assigns a new responder function to Crow's line stream object
+ *
+ * @param   {Function} responder A function which is run on all input recieved from the serial port
+ */
 const setResponder = (responder) => {
 	lineStream.removeAllListeners('data');
     lineStream.on('data', responder);
@@ -58,6 +73,29 @@ const checkError = (err) => {
     }
 };
 
+/*
+ * Upload a lua script contained in mulitple parts (may be neccessary for very long scripts)
+ *
+ * @param   {String[]} scripts An array of scripts as strings
+ */
+const uploadMultipleFiles = async (scripts) => {
+    const fileNames = Object.keys(scripts);
+    crowPort.write("^^s", checkError);
+    for (const name of fileNames) {
+        crowPort.write(scripts[name]+"\n");
+        await sleep(500);
+    };
+    await sleep(500);
+    writeLua(crowPort, "^^e");
+    return;
+};
+
+/*
+ * Send a command or script to Crow
+ *
+ * @param   {String} luaString A valid lua script or caret command (see druid source code for caret messages examples)
+ * @param   {String} uploadType How we want crow to run/save the script
+ */
 const send = async (luaString, uploadType="") => {
 	switch(uploadType) {
 		case "run":
@@ -74,38 +112,50 @@ const send = async (luaString, uploadType="") => {
 			crowPort.write("^^w", checkError);
 			await sleep(10);
 			break;
-		default:
-			crowPort.write(luaString+"\n", checkError);
+        case "caret":
+            crowPort.write(luaString, checkError);
+            await sleep(10);
+            break;
+        default:
+            crowPort.write(luaString+"\n", checkError);
 			break;
 	}
     return;
 };
 
-// js object or array to string representation of equivalent lua table
+/*
+ * Convert a JavaScript object or array to a string representation of a Lua table
+ *
+ * @param   {Object} o The object or array to convert to a Lua string
+ */
 const objectToTableStr = (o) => {
-	let tableString = `{`;
-	const properties = Array.isArray(o) ? o : Object.keys(o);
-	for (let i = 0; i < properties.length; i++) {
+    console.log(`o:`)
+    console.log(o);
+    let tableString = `{`;
+    const isArray = Array.isArray(o);
+    // If o is an object, properties is set to fields, else properties is set to the array elements
+    const properties = isArray ? o : Object.keys(o);
+    for (let i = 0; i < properties.length; i++) {
 		const property = properties[i];
-		let valueToAdd = "";
-        //TODO: fix array case
-        console.log(typeof(o[property]))
-        console.log(o[property])
-		switch(typeof(o[property])) {
+        const value = isArray ? property : o[property];
+		let valueString = "";
+        console.log(`value: ${value}`);
+        console.log(`typeof(value): ${typeof(value)}`);
+		switch(typeof(value)) {
 			case "object":
-				valueToAdd = `${objectToTableStr(o[property])}`;
+				valueString = `${objectToTableStr(value)}`;
 				break;
 			case "string":
-				valueToAdd = ` "${o[property]}"`;
+				valueString = ` "${value}"`;
 				break;
 			case "number": 
 			case "boolean":
-				valueToAdd = ` ${o[property]}`;
+				valueString = ` ${value}`;
 				break;
 			default:
 				break;
 		}
-		tableString += Array.isArray(o) ? valueToAdd : `${property} = ${valueToAdd}`;
+		tableString += isArray ? valueString : `${property} =${valueString}`;
 		if (i != properties.length-1) {
 			tableString += ", "
 		} else {
@@ -115,9 +165,19 @@ const objectToTableStr = (o) => {
 	return tableString;
 }
 
+/*
+ * Generate the string representation for a valid Lua function call
+ *
+ * @param   {String} functionName The function to call
+ * @param   {Array} args The function's arguments
+ *
+ * @returns {String} The lua function call as a string, for sending to Crow over serial
+ */
 const getLuaCallString = (functionName, args) => {
     let luaStr = `${functionName}(`;
     for (let i = 0; i < args.length; i++) {
+        console.log(`args[i]:`);
+        console.log(args[i])
         switch(typeof(args[i])) {
 			case "object":
 				luaStr += objectToTableStr(args[i]);
@@ -140,6 +200,12 @@ const getLuaCallString = (functionName, args) => {
     return luaStr;
 };
 
+/*
+ * Call an arbitrary Lua function with an array of arguments
+ *
+ * @param   {String} functionName The function to call
+ * @param   {Array} args The function's arguments
+ */
 const luaCall = async (functionName, args) => {
     const luaStr = getLuaCallString(functionName, args);
     console.log(luaStr)

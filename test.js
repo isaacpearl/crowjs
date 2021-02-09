@@ -6,12 +6,20 @@ async function test() {
 		console.log(data);
     });
 
-    console.log(crowConnection)
-
     if (crowConnection) {
-        await crow.send("x = true", "run");
-        await crow.send("print(x)");
-        await crow.luaCall("print", ["Hello world!", true, 0, [1, "array element"], {cat: "meow", dog: "woof", age: 100}]);
+        await crow.send("^^p", "caret");
+        await crow.luaCall("print", [
+            "Hello world!",
+            true,
+            0,
+            [1, "array element"],
+            {
+                cat: "meow",
+                dog: "woof",
+                age: 100,
+                correct: true,
+            }
+        ]);
     }
 
 }
