@@ -13,8 +13,7 @@ let crowPort, lineStream;
  * @returns {Object} The new lineStream object for Crow
  */
 const open = async (responder=console.log) => {
-	//crowPort = await connectCrow();
-	try {
+    try {
 		let port = await findCrow();
 		crowPort = new SerialPort(port, {
 			baudRate: 115200,
@@ -54,6 +53,8 @@ const findCrow = async () => {
  * @param   {Function} responder A function which is run on all input recieved from the serial port
  */
 const setResponder = (responder) => {
+    console.log(`setting responder:`)
+    console.log(responder)
 	lineStream.removeAllListeners('data');
     lineStream.on('data', responder);
     return;
@@ -100,21 +101,21 @@ const send = async (luaString, uploadType="") => {
 	switch(uploadType) {
 		case "run":
 			crowPort.write("^^s", checkError);
-			await sleep(10); //wait to allocate buffer
+			await sleep(200); //wait to allocate buffer
 			crowPort.write(luaString+"\n", checkError);
 			crowPort.write("^^e", checkError);
-			await sleep(10); //wait for lua environment to process the lua string
+			await sleep(100); //wait for lua environment to process the lua string
 			break;
 		case "save":
 			crowPort.write("^^s", checkError);
-			await sleep(10);
-			crowPort.write(luaString+"\n", checkError);
+			await sleep(200);
+            crowPort.write(luaString+"\n", checkError);
 			crowPort.write("^^w", checkError);
-			await sleep(10);
+			await sleep(100);
 			break;
         case "caret":
-            crowPort.write(luaString, checkError);
-            await sleep(10);
+            crowPort.write(luaString+"\n", checkError);
+            await sleep(100);
             break;
         default:
             crowPort.write(luaString+"\n", checkError);
@@ -129,8 +130,6 @@ const send = async (luaString, uploadType="") => {
  * @param   {Object} o The object or array to convert to a Lua string
  */
 const objectToTableStr = (o) => {
-    console.log(`o:`)
-    console.log(o);
     let tableString = `{`;
     const isArray = Array.isArray(o);
     // If o is an object, properties is set to fields, else properties is set to the array elements
@@ -139,8 +138,6 @@ const objectToTableStr = (o) => {
 		const property = properties[i];
         const value = isArray ? property : o[property];
 		let valueString = "";
-        console.log(`value: ${value}`);
-        console.log(`typeof(value): ${typeof(value)}`);
 		switch(typeof(value)) {
 			case "object":
 				valueString = `${objectToTableStr(value)}`;
@@ -173,11 +170,9 @@ const objectToTableStr = (o) => {
  *
  * @returns {String} The lua function call as a string, for sending to Crow over serial
  */
-const getLuaCallString = (functionName, args) => {
+const getLuaCallString = (functionName, args=[]) => {
     let luaStr = `${functionName}(`;
     for (let i = 0; i < args.length; i++) {
-        console.log(`args[i]:`);
-        console.log(args[i])
         switch(typeof(args[i])) {
 			case "object":
 				luaStr += objectToTableStr(args[i]);
@@ -208,7 +203,7 @@ const getLuaCallString = (functionName, args) => {
  */
 const luaCall = async (functionName, args) => {
     const luaStr = getLuaCallString(functionName, args);
-    console.log(luaStr)
+    //console.log(luaStr)
     await send(luaStr, "run"); 
     return;
 };
