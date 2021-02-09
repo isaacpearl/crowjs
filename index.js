@@ -98,23 +98,24 @@ const uploadMultipleFiles = async (scripts) => {
  * @param   {String} uploadType How we want crow to run/save the script
  */
 const send = async (luaString, uploadType="") => {
+    // TODO: write one line at a time like druid
 	switch(uploadType) {
 		case "run":
 			crowPort.write("^^s", checkError);
 			await sleep(200); //wait to allocate buffer
 			crowPort.write(luaString+"\n", checkError);
-			crowPort.write("^^e", checkError);
 			await sleep(100); //wait for lua environment to process the lua string
+			crowPort.write("^^e", checkError);
 			break;
 		case "save":
 			crowPort.write("^^s", checkError);
 			await sleep(200);
             crowPort.write(luaString+"\n", checkError);
-			crowPort.write("^^w", checkError);
 			await sleep(100);
+			crowPort.write("^^w", checkError);
 			break;
         case "caret":
-            crowPort.write(luaString+"\n", checkError);
+            crowPort.write(luaString, checkError);
             await sleep(100);
             break;
         default:
