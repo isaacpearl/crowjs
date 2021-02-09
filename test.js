@@ -1,7 +1,6 @@
 const crow = require('./index.js');
 
-async function test() {
-
+const test = async () => {
     const crowConnection = await crow.open((data) => {
 		console.log(data);
     });
